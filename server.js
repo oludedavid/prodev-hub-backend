@@ -15,9 +15,7 @@ app.use("/api", require("./routes/api"));
 // Use the router for handling routes
 app.use(router);
 
-const PORT = process.env.SERVER_PORT || 5000;
-
-app.listen(PORT, () => {
+app.listen(process.env.SERVER_PORT || 5000, () => {
   console.log(
     "Proddev Nexus Backend Server running on " + process.env.SERVER_PORT
   );
