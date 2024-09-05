@@ -2,7 +2,7 @@ const User = require("../models/Users");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const Role = require("../models/role");
-const Permissions = require("../models/permissions");
+const Permissions = require("../models/Permissions");
 
 // Create an instance of the Role class
 const roleManager = new Role();

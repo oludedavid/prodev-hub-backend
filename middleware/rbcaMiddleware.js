@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const Permissions = require("../models/permissions");
+const Permissions = require("../models/Permissions");
 const User = require("../models/Users");
 // Middleware factory to check if the user has a specific role
 const checkRole = (requiredRole) => {
