@@ -5,7 +5,7 @@ const auth = require("../controllers/auth");
 
 // Home Route
 router.get("/", (req, res) => {
-  res.sendFile("./index.html", { root: __dirname });
+  res.json({ message: "Proddev Hub API" });
 });
 
 // Get all users based on the role
