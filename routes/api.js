@@ -83,6 +83,9 @@ router.post("/register", auth.register);
 // Login Route
 router.post("/login", auth.login);
 
+//verify route
+router.get("/verify-email", auth.verifyEmail);
+
 //update user
 // Update Profile Route
 router.put("/profile", auth.updateProfile);

@@ -1,8 +1,17 @@
 const User = require("../models/Users");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const nodemailer = require("nodemailer");
 const Role = require("../models/Role");
 const Permissions = require("../models/Permissions");
+
+const emailTransporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.EMAIL,
+    pass: process.env.EMAIL_PASSWORD,
+  },
+});
 
 // Create an instance of the Role class
 const roleManager = new Role();
@@ -12,7 +21,6 @@ const permissionManager = new Permissions();
 exports.register = async (req, res) => {
   try {
     // Get the payload from the request body
-
     const { fullName, email, password, role } = req.body;
 
     // Check if the user role exists or is valid
@@ -35,47 +43,103 @@ exports.register = async (req, res) => {
     // Save the user
     await user.save();
 
+    // Generate an email verification token using JWT
+    const emailToken = jwt.sign(
+      { email: user.email }, // Payload
+      process.env.EMAIL_JWT_SECRET || "RANDOM-TOKEN", // Secret key (keep this secure in environment variables)
+      { expiresIn: "1h" } // Token expiration time
+    );
+
+    // Create the verification URL
+    const verificationUrl = `https://prodev-hub-frontend.vercel.app/verify-email?token=${emailToken}`;
+
+    // Construct the email content
+    const mailOptions = {
+      from: "your@gmail.com", // Your email address
+      to: user.email, // Recipient's email address
+      subject: "Verify Your Email",
+      html: `<p>Please click the following link to verify your email:</p><a href="${verificationUrl}">${verificationUrl}</a>`,
+    };
+
+    // Send the verification email
+    await emailTransporter.sendMail(mailOptions);
+
     // Return a success message
     res.status(201).json({
-      message: "User created successfully. Please log into your account! 😊",
+      message:
+        "User created successfully. Please check your email to verify your account.",
     });
   } catch (err) {
     console.error("Error during registration:", err);
-
     res.status(500).json({ message: "Server error, please try again later" });
+  }
+};
+
+//verify email
+exports.verifyEmail = async (req, res) => {
+  try {
+    const { token } = req.query;
+
+    // Verify the token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    // Find the user by email
+    const user = await User.findOne({ email: decoded.email });
+
+    if (!user) {
+      return res.status(400).json({ message: "User not found" });
+    }
+
+    // Check if the user is already verified
+    if (user.isVerified) {
+      return res.status(400).json({ message: "User is already verified." });
+    }
+
+    // Update the user's isVerified field
+    user.isVerified = true;
+    await user.save();
+
+    res.status(200).json({ message: "Email verified successfully!" });
+  } catch (err) {
+    console.error("Error verifying email:", err);
+    res.status(500).json({ message: "Invalid or expired token." });
   }
 };
 
 //login a user
 exports.login = async (req, res) => {
   try {
-    // get the payload data
     const { email, password } = req.body;
 
-    // find the user in the database
+    // Find the user in the database
     const user = await User.findOne({ email });
 
     if (!user) {
       return res.status(404).send({ message: "Email not found" });
     }
 
-    // compare the password entered by the user with that of the found user that matches the email using bcrypt
+    // Check if the email is verified
+    if (!user.isVerified) {
+      return res
+        .status(403)
+        .json({ message: "Please verify your email before logging in." });
+    }
+
+    // Compare the password entered by the user with the stored hashed password
     const passwordCheck = await bcrypt.compare(password, user.password);
 
     if (!passwordCheck) {
-      return res.status(400).send({
-        message: "Password does not match",
-      });
+      return res.status(400).send({ message: "Password does not match" });
     }
 
-    // get user role from the found user
+    // Get user role from the found user
     const userRole = user.role;
 
-    // get user permissions
+    // Get user permissions
     const userPermissions =
       permissionManager.getPermissionsByRoleName(userRole);
 
-    // create session management using jwt
+    // Create session management using jwt
     let token = jwt.sign(
       {
         fullName: user.fullName,
