@@ -81,7 +81,10 @@ exports.verifyEmail = async (req, res) => {
     const { token } = req.query;
 
     // Verify the token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(
+      token,
+      process.env.EMAIL_JWT_SECRET || "RANDOM-TOKEN"
+    );
 
     // Find the user by email
     const user = await User.findOne({ email: decoded.email });
