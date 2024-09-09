@@ -89,3 +89,5 @@ router.post("/order/checkout", Auth, async (req, res) => {
     res.status(400).send("invalid request");
   }
 });
+
+module.exports = router;

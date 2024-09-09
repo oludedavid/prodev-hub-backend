@@ -1,4 +1,5 @@
 const User = require("../models/User");
+const jwt = require("jsonwebtoken");
 const express = require("express");
 const router = express.Router();
 const nodemailer = require("nodemailer");
@@ -18,7 +19,7 @@ const emailTransporter = nodemailer.createTransport({
 });
 
 //signup
-router.post("/users", async (req, res) => {
+router.post("/users/signup", async (req, res) => {
   const { fullName, email, password, badge } = req.body;
   try {
     // Check if the badge is valid
@@ -84,50 +85,44 @@ router.post("/users", async (req, res) => {
 });
 
 //verify email route based on the verification url generated fro the client side
-exports.verifyEmail = async (req, res) => {
+
+router.get("/users/verify-email", async (req, res) => {
   try {
     const { token } = req.query;
-
     // Verify the token
-    const decoded = jwt.verify(
-      token,
-      process.env.EMAIL_JWT_SECRET || "RANDOM-TOKEN"
-    );
-
-    // Find the user by email
-    const user = await User.findOne({ email: decoded.email });
-
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || "RANDOM-TOKEN");
+    // Find the user by ID (from the decoded token)
+    const user = await User.findOne({ _id: decoded._id });
     if (!user) {
       return res.status(400).json({ message: "User not found" });
     }
-
     // Check if the user is already verified
     if (user.isVerified) {
       return res.status(400).json({ message: "User is already verified." });
     }
-
     // Update the user's isVerified field
     user.isVerified = true;
     await user.save();
-
     res.status(200).json({ message: "Email verified successfully!" });
   } catch (err) {
-    console.error("Error verifying email:", err);
+    console.log("Error verifying email:", err);
+    if (err.name === "TokenExpiredError") {
+      return res
+        .status(400)
+        .json({ message: "Verification token has expired." });
+    }
     res.status(500).json({ message: "Invalid or expired token." });
   }
-};
+});
 
 //login
 router.post("/users/login", async (req, res) => {
   try {
-    // Find the user in the database
+    // Find the user in the database using the provided email and password
     const user = await User.findByCredentials(
       req.body.email,
       req.body.password
     );
-    if (!user) {
-      return res.status(404).send({ message: "Email not found" });
-    }
 
     // Check if the email is verified
     if (!user.isVerified) {
@@ -135,11 +130,13 @@ router.post("/users/login", async (req, res) => {
         .status(403)
         .json({ message: "Please verify your email before logging in." });
     }
+
+    // Generate the authentication token
     const token = await user.generateAuthToken();
 
     res.status(200).send({ user, token, message: "Login Successful" });
   } catch (error) {
-    res.status(400).send(error);
+    res.status(400).send({ error: error.message });
   }
 });
 

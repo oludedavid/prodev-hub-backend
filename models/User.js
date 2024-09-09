@@ -74,15 +74,19 @@ userSchema.pre("save", async function (next) {
 });
 
 //statics: they can be called directly on the model
-userSchema.statics.findByCredentials = async (email, password) => {
-  const user = await User.findOne({ email });
+// Static method to find user by credentials
+userSchema.statics.findByCredentials = async function (email, password) {
+  const user = await this.findOne({ email });
   if (!user) {
-    throw new Error("Unable to log in");
+    throw new Error("Unable to log in. Email not found.");
   }
+
   const isMatch = await bcrypt.compare(password, user.password);
   if (!isMatch) {
-    throw new Error("Unable to login");
+    throw new Error("Unable to log in. Incorrect password.");
   }
+
   return user;
 };
+
 module.exports = mongoose.model("User", userSchema);

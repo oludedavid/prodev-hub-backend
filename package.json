@@ -4,7 +4,7 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js",
+    "start": "node src/server.js",
     "dev": "env-cmd -f ./config/dev.env nodemon src/server.js"
   },
   "author": "",
@@ -15,11 +15,12 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
+    "flutterwave-node-v3": "^1.1.10",
     "jsonwebtoken": "^9.0.2",
-    "validator": "^13.6.0",
     "mongodb": "^6.8.0",
     "mongoose": "^8.6.1",
     "nodemailer": "^6.9.15",
-    "nodemon": "^3.1.4"
+    "nodemon": "^3.1.4",
+    "validator": "^13.6.0"
   }
 }
