@@ -1,8 +1,8 @@
 const jwt = require("jsonwebtoken");
 const Permissions = require("../models/Permissions");
-const User = require("../models/Users");
-// Middleware factory to check if the user has a specific role
-const checkRole = (requiredRole) => {
+const User = require("../models/User");
+// Middleware factory to check if the user has a specific badge
+const checkbadge = (requiredBadge) => {
   return (req, res, next) => {
     try {
       // Check if the Authorization header is present
@@ -21,10 +21,10 @@ const checkRole = (requiredRole) => {
         process.env.JWT_SECRET || "RANDOM-TOKEN"
       );
 
-      // Check if the user has the required role
-      if (decodedToken.role !== requiredRole) {
+      // Check if the user has the required badge
+      if (decodedToken.badge !== requiredBadge) {
         return res.status(403).json({
-          message: `Access denied: ${requiredRole}s only. Your role: ${decodedToken.role}`,
+          message: `Access denied: ${requiredBadge}s only. Your badge: ${decodedToken.badge}`,
         });
       }
 
@@ -42,9 +42,9 @@ const checkRole = (requiredRole) => {
 
 exports.checkPermission = (permission) => {
   return (req, res, next) => {
-    const userRole = req.user ? req.user.role : "anonymous";
-    const userPermissions = new Permissions().getPermissionsByRoleName(
-      userRole
+    const userBadge = req.user ? req.user.badge : "anonymous";
+    const userPermissions = new Permissions().getPermissionsBybadgeName(
+      userbadge
     );
 
     // Check if the user has the required permission
@@ -57,8 +57,8 @@ exports.checkPermission = (permission) => {
   };
 };
 
-//Accessing/filter all users data based on the role
-exports.filterUsersByRole = () => {
+//Accessing/filter all users data based on the badge
+exports.filterUsersBybadge = () => {
   return async (req, res, next) => {
     try {
       if (!req.headers.authorization) {
@@ -79,24 +79,24 @@ exports.filterUsersByRole = () => {
         return res.status(404).json({ message: "User data not found" });
       }
 
-      if (decodedToken.role === "admin") {
+      if (decodedToken.badge === "admin") {
         const allUsers = await User.find({});
         return res.json({
-          students: allUsers.filter((user) => user.role === "student"),
-          tutors: allUsers.filter((user) => user.role === "tutor"),
-          admins: allUsers.filter((user) => user.role === "admin"),
-          permissions: new Permissions().getPermissionsByRoleName("admin"),
+          students: allUsers.filter((user) => user.badge === "student"),
+          tutors: allUsers.filter((user) => user.badge === "tutor"),
+          admins: allUsers.filter((user) => user.badge === "admin"),
+          permissions: new Permissions().getPermissionsBybadgeName("admin"),
         });
-      } else if (decodedToken.role === "tutor") {
+      } else if (decodedToken.badge === "tutor") {
         return res.json({
           userData: userData,
-          permissions: new Permissions().getPermissionsByRoleName("tutor"),
+          permissions: new Permissions().getPermissionsBybadgeName("tutor"),
         });
         // TODO: In the future, allow tutors to see the list of students attending their courses.
-      } else if (decodedToken.role === "student") {
+      } else if (decodedToken.badge === "student") {
         return res.json({
           userData: userData,
-          permissions: new Permissions().getPermissionsByRoleName("student"),
+          permissions: new Permissions().getPermissionsBybadgeName("student"),
         });
       }
 
@@ -110,7 +110,7 @@ exports.filterUsersByRole = () => {
   };
 };
 
-//Adding a search functionality for the admin users to search for users by name or email or role
+//Adding a search functionality for the admin users to search for users by name or email or badge
 exports.searchUser = async (req, res) => {
   try {
     // Check if the Authorization header is present
@@ -127,7 +127,7 @@ exports.searchUser = async (req, res) => {
       process.env.JWT_SECRET || "RANDOM-TOKEN"
     );
 
-    if (decodedToken.role !== "admin") {
+    if (decodedToken.badge !== "admin") {
       return res.status(403).json({
         message: "Access denied. Admins only.",
       });
@@ -164,7 +164,7 @@ exports.searchUser = async (req, res) => {
   }
 };
 
-// Exporting specific role-checking middleware
-exports.studentDashboard = checkRole("student");
-exports.tutorDashboard = checkRole("tutor");
-exports.adminDashboard = checkRole("admin");
+// Exporting specific badge-checking middleware
+exports.studentDashboard = checkbadge("student");
+exports.tutorDashboard = checkbadge("tutor");
+exports.adminDashboard = checkbadge("admin");

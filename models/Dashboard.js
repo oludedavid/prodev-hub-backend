@@ -1,0 +1,22 @@
+const express = require("express");
+const mongoose = require("mongoose");
+const ObjectId = mongoose.Schema.Types.ObjectId;
+
+const dashboardSchema = new mongoose.Schema(
+  {
+    owner: {
+      type: ObjectId,
+      ref: "User",
+      required: true,
+    },
+    order: {
+      type: ObjectId,
+      ref: "Order",
+      required: true,
+    },
+  },
+
+  {
+    timestamps: true,
+  }
+);

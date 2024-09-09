@@ -1,0 +1,15 @@
+{
+  "coursesOffered": [
+    {
+      "name": "Introduction to Programming",
+      "description": "A beginner-friendly course on the fundamentals of programming.",
+      "category": "Technology",
+      "price": 49.99,
+      "duration": "6 weeks",
+      "tutor": "John Doe",
+      "available": true,
+      "maxNumberOfStudents": 30,
+      "numberOfEnrolledStudents": 10
+    }
+  ]
+}

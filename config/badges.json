@@ -1,5 +1,5 @@
 {
-  "roles": [
+  "badges": [
     {
       "name": "admin",
       "permissions": [
@@ -8,6 +8,10 @@
         "update_record",
         "delete_record"
       ]
+    },
+    {
+      "name": "potential_student",
+      "permissions": ["create_record", "update_record"]
     },
     {
       "name": "student",

@@ -1,15 +1,15 @@
-//Load the json file that contains the roles
-const roles = require("../config/roles.json");
+//Load the json file that contains the badges
+const badges = require("../config/badges.json");
 
 class Permissions {
   constructor() {
     this.permissions = [];
   }
 
-  //Get the permissions for a role name
-  getPermissionsByRoleName(roleName) {
-    const role = roles.roles.find((role) => role.name === roleName);
-    return role?.permissions || [];
+  //Get the permissions for a badge name
+  getPermissionsBybadgeName(badgeName) {
+    const badge = badges.badges.find((badge) => badge.name === badgeName);
+    return badge?.permissions || [];
   }
 }
 

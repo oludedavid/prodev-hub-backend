@@ -1,8 +1,8 @@
-const User = require("../models/Users");
+const User = require("../models/User");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
-const Role = require("../models/Role");
+const Badge = require("../models/Badge");
 const Permissions = require("../models/Permissions");
 
 const emailTransporter = nodemailer.createTransport({
@@ -13,19 +13,19 @@ const emailTransporter = nodemailer.createTransport({
   },
 });
 
-// Create an instance of the Role class
-const roleManager = new Role();
+// Create an instance of the badge class
+const badgeManager = new Badge();
 //permission manager
 const permissionManager = new Permissions();
 //register a user to the database
 exports.register = async (req, res) => {
   try {
     // Get the payload from the request body
-    const { fullName, email, password, role } = req.body;
+    const { fullName, email, password, badge } = req.body;
 
-    // Check if the user role exists or is valid
-    if (!roleManager.checkRoleExists(role)) {
-      return res.status(400).json({ message: "Invalid role specified" });
+    // Check if the user badge exists or is valid
+    if (!badgeManager.checkbadgeExists(badge)) {
+      return res.status(400).json({ message: "Invalid badge specified" });
     }
 
     // Check if the email already exists
@@ -38,16 +38,16 @@ exports.register = async (req, res) => {
     const hashPassword = await bcrypt.hash(password, 10);
 
     // Create a new user
-    const user = new User({ fullName, email, password: hashPassword, role });
+    const user = new User({ fullName, email, password: hashPassword, badge });
 
     // Save the user
     await user.save();
 
     // Generate an email verification token using JWT
     const emailToken = jwt.sign(
-      { email: user.email }, // Payload
-      process.env.EMAIL_JWT_SECRET || "RANDOM-TOKEN", // Secret key (keep this secure in environment variables)
-      { expiresIn: "1h" } // Token expiration time
+      { email: user.email },
+      process.env.EMAIL_JWT_SECRET || "RANDOM-TOKEN",
+      { expiresIn: "1h" }
     );
 
     // Create the verification URL
@@ -55,10 +55,26 @@ exports.register = async (req, res) => {
 
     // Construct the email content
     const mailOptions = {
-      from: "your@gmail.com", // Your email address
-      to: user.email, // Recipient's email address
-      subject: "Verify Your Email",
-      html: `<p>Please click the following link to verify your email:</p><a href="${verificationUrl}">${verificationUrl}</a>`,
+      from: "your@gmail.com",
+      to: user.email,
+      subject: "Verify Your Email Address",
+      html: `
+    <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+      <h2 style="color: #4CAF50;">Welcome to Our Platform!</h2>
+      <p>Hi ${user.fullName},</p>
+      <p>Thank you for signing up. Please verify your email address by clicking the button below:</p>
+      <p style="text-align: center;">
+        <a href="${verificationUrl}" 
+           style="display: inline-block; padding: 10px 20px; font-size: 16px; color: #fff; background-color: #4CAF50; text-decoration: none; border-radius: 5px;">
+          Verify Email
+        </a>
+      </p>
+      <p>If the button doesn't work, you can also verify your email by clicking the following link:</p>
+      <p style="word-break: break-all;"><a href="${verificationUrl}">${verificationUrl}</a></p>
+      <p>If you didn't sign up for this account, please ignore this email.</p>
+      <p>Best regards,<br>Your Company Team</p>
+    </div>
+  `,
     };
 
     // Send the verification email
@@ -135,12 +151,12 @@ exports.login = async (req, res) => {
       return res.status(400).send({ message: "Password does not match" });
     }
 
-    // Get user role from the found user
-    const userRole = user.role;
+    // Get user badge from the found user
+    const userbadge = user.badge;
 
     // Get user permissions
     const userPermissions =
-      permissionManager.getPermissionsByRoleName(userRole);
+      permissionManager.getPermissionsBybadgeName(userbadge);
 
     // Create session management using jwt
     let token = jwt.sign(
@@ -148,7 +164,7 @@ exports.login = async (req, res) => {
         fullName: user.fullName,
         email: user.email,
         id: user._id,
-        role: userRole,
+        badge: userbadge,
       },
       process.env.JWT_SECRET || "RANDOM-TOKEN",
       { expiresIn: "24h", algorithm: "HS256" }
@@ -159,7 +175,7 @@ exports.login = async (req, res) => {
       user: {
         id: user._id,
         fullName: user.fullName,
-        role: userRole,
+        badge: userbadge,
         email: user.email,
         permissions: userPermissions,
       },

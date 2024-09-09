@@ -1,37 +1,57 @@
 const mongoose = require("mongoose");
+const ObjectID = mongoose.Schema.Types.ObjectId;
 
 const orderSchema = new mongoose.Schema(
   {
-    student: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Student",
+    owner: {
+      type: ObjectID,
       required: true,
+      ref: "User",
     },
-    course: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Course",
-      required: true,
-    },
-    totalAmount: {
+    courses: [
+      {
+        courseId: {
+          type: ObjectID,
+          ref: "CourseOffered",
+          required: true,
+        },
+        name: String,
+        quantity: {
+          type: Number,
+          required: true,
+          min: 1,
+          default: 1,
+        },
+        price: Number,
+      },
+    ],
+    bill: {
       type: Number,
+      required: true,
+      default: 0,
+    },
+    orderStatus: {
+      type: String,
+      enum: ["pending", "shipped", "delivered", "canceled"],
+      default: "pending",
+    },
+    paymentMethod: {
+      type: String,
+      enum: ["credit_card", "paypal", "flutterwave", "bank_transfer"],
       required: true,
     },
     paymentStatus: {
       type: String,
-      enum: ["Pending", "Completed", "Failed"],
-      default: "Pending",
+      enum: ["pending", "completed", "failed"],
+      default: "pending",
     },
-    paymentMethod: {
-      type: String,
-      enum: ["Credit Card", "PayPal", "Bank Transfer"],
-      required: true,
-    },
-    orderDate: {
-      type: Date,
-      default: Date.now,
+    discount: {
+      type: Number,
+      default: 0,
     },
   },
   { timestamps: true }
 );
 
-module.exports = mongoose.model("Order", orderSchema);
+const Order = mongoose.model("Order", orderSchema);
+module.exports = Order;
