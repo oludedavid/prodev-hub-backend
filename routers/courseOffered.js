@@ -92,4 +92,75 @@ router.get("/courses", async (req, res) => {
   }
 });
 
+//get all course category
+router.get("/courses/category", async (req, res) => {
+  try {
+    const uniqueCategories = await CourseOffered.distinct("category");
+    res.status(200).send(uniqueCategories);
+  } catch (error) {
+    res.status(400).send(error);
+  }
+});
+//get course by category
+router.get("/courses/category/:category", async (req, res) => {
+  try {
+    const items = await CourseOffered.find({ category: req.params.category });
+
+    if (items.length === 0) {
+      return res
+        .status(404)
+        .send({ message: "No courses found in this category." });
+    }
+
+    res.status(200).send(items);
+  } catch (error) {
+    res
+      .status(400)
+      .send({ error: "An error occurred while fetching the courses." });
+  }
+});
+
+//get course by name
+router.get("/courses/:name", async (req, res) => {
+  try {
+    const items = await CourseOffered.find({
+      name: { $regex: new RegExp(req.params.name, "i") },
+    });
+
+    if (items.length === 0) {
+      return res
+        .status(404)
+        .send({ message: "No courses found with the specified name." });
+    }
+
+    res.status(200).send(items);
+  } catch (error) {
+    res
+      .status(400)
+      .send({ error: "An error occurred while fetching the courses." });
+  }
+});
+
+//get course by category and course name
+router.get("/courses/:category/:name", async (req, res) => {
+  try {
+    const items = await CourseOffered.find({
+      category: req.params.category,
+      name: { $regex: new RegExp(req.params.name, "i") }, // Case-insensitive matching
+    });
+
+    if (items.length === 0) {
+      return res.status(404).send({
+        message: "No courses found with the specified category and name.",
+      });
+    }
+
+    res.status(200).send(items);
+  } catch (error) {
+    res
+      .status(400)
+      .send({ error: "An error occurred while fetching the courses." });
+  }
+});
+
 module.exports = router;
