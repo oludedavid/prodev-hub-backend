@@ -33,7 +33,7 @@ router.get("/courses", async (req, res) => {
 });
 
 //get course by id
-router.patch("/courses/:id", Auth, async (req, res) => {
+router.patch("/courses/update-course/:id", Auth, async (req, res) => {
   // Check if the user has the role of 'admin'
   if (req.user.badge !== "admin") {
     return res.status(403).send({ message: "Access denied: Admins only" });
@@ -60,7 +60,7 @@ router.patch("/courses/:id", Auth, async (req, res) => {
 });
 
 //delete course by id
-router.delete("/courses/:id", Auth, async (req, res) => {
+router.delete("/courses/delete-course/:id", Auth, async (req, res) => {
   try {
     // Check if the user has the role of 'admin'
     if (req.user.badge !== "admin") {
@@ -78,7 +78,7 @@ router.delete("/courses/:id", Auth, async (req, res) => {
 });
 
 //get course by id
-router.get("/courses/:id", async (req, res) => {
+router.get("/courses/course-by-id/:id", async (req, res) => {
   try {
     const item = await CourseOffered.findById(req.params.id);
     res.status(200).send(item);
@@ -112,7 +112,7 @@ router.get("/courses/course-by-name/:name", async (req, res) => {
 });
 
 //get all course category
-router.get("/courses/categories", async (req, res) => {
+router.get("/courses/course-categories", async (req, res) => {
   try {
     // Aggregate the data by category and count the number of courses in each category
     const categoriesWithCounts = await CourseOffered.aggregate([
@@ -139,23 +139,26 @@ router.get("/courses/categories", async (req, res) => {
   }
 });
 //get course by category
-router.get("/courses/categories/:category", async (req, res) => {
-  try {
-    const items = await CourseOffered.find({ category: req.params.category });
+router.get(
+  "/courses/course-categories/category/:category",
+  async (req, res) => {
+    try {
+      const items = await CourseOffered.find({ category: req.params.category });
 
-    if (items.length === 0) {
-      return res
-        .status(404)
-        .send({ message: "No courses found in this category." });
+      if (items.length === 0) {
+        return res
+          .status(404)
+          .send({ message: "No courses found in this category." });
+      }
+
+      res.status(200).send(items);
+    } catch (error) {
+      res
+        .status(400)
+        .send({ error: "An error occurred while fetching the courses." });
     }
-
-    res.status(200).send(items);
-  } catch (error) {
-    res
-      .status(400)
-      .send({ error: "An error occurred while fetching the courses." });
   }
-});
+);
 
 //get course by category and course name
 router.get("/courses/:category/:name", async (req, res) => {
