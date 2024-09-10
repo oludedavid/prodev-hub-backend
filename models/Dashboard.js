@@ -9,11 +9,6 @@ const dashboardSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
-    order: {
-      type: ObjectId,
-      ref: "Order",
-      required: true,
-    },
   },
 
   {

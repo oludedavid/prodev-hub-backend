@@ -1,15 +1,124 @@
 {
   "coursesOffered": [
     {
-      "name": "Introduction to Programming",
-      "description": "A beginner-friendly course on the fundamentals of programming.",
-      "category": "Technology",
+      "name": "React JS",
+      "description": "A beginner-friendly course on building web applications using React.",
+      "category": "Web Development",
+      "imageUrl": "../assets/images/courseImage.png",
       "price": 49.99,
       "duration": "6 weeks",
-      "tutor": "John Doe",
+      "tutorName": "John Doe",
       "available": true,
       "maxNumberOfStudents": 30,
       "numberOfEnrolledStudents": 10
+    },
+    {
+      "name": "Node.js Backend Development",
+      "description": "Learn how to build scalable backend applications with Node.js.",
+      "category": "Web Development",
+      "imageUrl": "../assets/images/courseImage2.png",
+      "price": 59.99,
+      "duration": "8 weeks",
+      "tutorName": "Jane Smith",
+      "available": true,
+      "maxNumberOfStudents": 25,
+      "numberOfEnrolledStudents": 15
+    },
+    {
+      "name": "Python for Data Science",
+      "description": "Master data analysis and visualization using Python.",
+      "category": "Data Science",
+      "imageUrl": "../assets/images/courseImage5.png",
+      "price": 69.99,
+      "duration": "10 weeks",
+      "tutorName": "Alice Johnson",
+      "available": true,
+      "maxNumberOfStudents": 50,
+      "numberOfEnrolledStudents": 40
+    },
+    {
+      "name": "Machine Learning with TensorFlow",
+      "description": "Build machine learning models with TensorFlow.",
+      "category": "Data Science",
+      "imageUrl": "../assets/images/courseImage2.png",
+      "price": 89.99,
+      "duration": "12 weeks",
+      "tutorName": "Bob Lee",
+      "available": true,
+      "maxNumberOfStudents": 35,
+      "numberOfEnrolledStudents": 20
+    },
+    {
+      "name": "Introduction to Product Management",
+      "description": "Learn the essentials of product management and launch successful products.",
+      "category": "Product Management",
+      "imageUrl": "../assets/images/courseImage1.png",
+      "price": 79.99,
+      "duration": "8 weeks",
+      "tutorName": "Caroline Adams",
+      "available": true,
+      "maxNumberOfStudents": 40,
+      "numberOfEnrolledStudents": 18
+    },
+    {
+      "name": "Advanced Product Management",
+      "description": "Take your product management skills to the next level.",
+      "category": "Product Management",
+      "imageUrl": "../assets/images/courseImage2.png",
+      "price": 99.99,
+      "duration": "12 weeks",
+      "tutorName": "David Clark",
+      "available": true,
+      "maxNumberOfStudents": 30,
+      "numberOfEnrolledStudents": 22
+    },
+    {
+      "name": "Business Analysis Fundamentals",
+      "description": "Understand the fundamentals of business analysis.",
+      "category": "Business Analysis",
+      "imageUrl": "../assets/images/courseImage2.png",
+      "price": 59.99,
+      "duration": "6 weeks",
+      "tutorName": "Emily Taylor",
+      "available": true,
+      "maxNumberOfStudents": 35,
+      "numberOfEnrolledStudents": 25
+    },
+    {
+      "name": "Agile Project Management",
+      "description": "Learn Agile project management frameworks like Scrum and Kanban.",
+      "category": "Business Analysis",
+      "imageUrl": "../assets/images/courseImage1.png",
+      "price": 79.99,
+      "duration": "8 weeks",
+      "tutorName": "Frank Miller",
+      "available": true,
+      "maxNumberOfStudents": 30,
+      "numberOfEnrolledStudents": 27
+    },
+    {
+      "name": "Data Visualization with Power BI",
+      "description": "Learn how to create compelling data visualizations using Power BI.",
+      "category": "Data Science",
+      "imageUrl": "../assets/images/courseImage.png",
+      "price": 69.99,
+      "duration": "7 weeks",
+      "tutorName": "Grace Kim",
+      "available": true,
+      "maxNumberOfStudents": 45,
+      "numberOfEnrolledStudents": 32
+    },
+    {
+      "name": "Full-Stack Web Development",
+      "description": "Learn to build both frontend and backend applications using modern technologies.",
+      "category": "Web Development",
+      "imageUrl": "../assets/images/courseImage3.png",
+      "price": 109.99,
+      "duration": "14 weeks",
+      "tutorName": "Henry Wilson",
+      "available": true,
+      "maxNumberOfStudents": 25,
+      "numberOfEnrolledStudents": 20
     }
   ]
 }

@@ -17,11 +17,16 @@ const courseOfferedSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
+  imageUrl: {
+    type: String,
+    required: true,
+    default: "../assets/images/courseImage.png",
+  },
   duration: {
     type: String,
     required: true,
   },
-  tutor: {
+  tutorName: {
     type: String,
     required: true,
   },

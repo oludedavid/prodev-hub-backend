@@ -5,21 +5,32 @@ const Auth = require("../middleware/auth");
 const router = new express.Router();
 
 //adding courses offered to the database
-router.post("/seed", async (req, res, next) => {
+router.post("/courses/seeds", async (req, res, next) => {
+  const courses = coursesOfferedData.coursesOffered; // Single course data
+  try {
+    // Clear the CourseOffered collection before seeding
+    await CourseOffered.deleteMany({});
+
+    // Insert a single course using insertOne
+    await CourseOffered.insertMany(courses); // Use create or insertOne
+
+    res.send("Course seeded successfully");
+  } catch (err) {
+    console.error("Error seeding course:", err);
+    next(err);
+  }
+});
+
+//creating an offered course mainly in admin dashboard
+router.post("/courses/seeds", async (req, res, next) => {
   const courses = coursesOfferedData.coursesOffered;
   try {
-    // Clear the users collection before seeding
-    await User.deleteMany({});
-    //Add new users
-    for (let x = 0; x < courses.length; x++) {
-      // Create a new user
-      const courseOffered = new CourseOffered({
-        ...courses[x],
-      });
+    // Clear the CourseOffered collection before seeding
+    await CourseOffered.deleteMany({});
 
-      // Save the user to the database
-      await courseOffered.save();
-    }
+    // Use insertMany to seed courses in a single batch operation
+    await CourseOffered.insertOne(courses[0]);
+
     res.send("Courses seeded successfully");
   } catch (err) {
     console.error("Error seeding courses:", err);
@@ -27,26 +38,8 @@ router.post("/seed", async (req, res, next) => {
   }
 });
 
-//creating an offered course mainly in admin dashboard
-router.post("/courseOffered", Auth, async (req, res) => {
-  try {
-    // Check if the user has the role of 'admin'
-    if (req.user.badge !== "admin") {
-      return res.status(403).send({ message: "Access denied: Admins only" });
-    }
-    const newCourseOffered = new CourseOffered({
-      ...req.body,
-      owner: req.user._id,
-    });
-    await newCourseOffered.save();
-    res.status(201).send(newCourseOffered);
-  } catch (error) {
-    res.status(400).send({ message: "error" });
-  }
-});
-
 //updating a course that is offered
-router.patch("/coursesOffered/:id", Auth, async (req, res) => {
+router.patch("/courses/:id", Auth, async (req, res) => {
   // Check if the user has the role of 'admin'
   if (req.user.badge !== "admin") {
     return res.status(403).send({ message: "Access denied: Admins only" });
@@ -72,7 +65,7 @@ router.patch("/coursesOffered/:id", Auth, async (req, res) => {
   }
 });
 
-router.delete("/coursesOffered/:id", Auth, async (req, res) => {
+router.delete("/courses/:id", Auth, async (req, res) => {
   try {
     // Check if the user has the role of 'admin'
     if (req.user.badge !== "admin") {
@@ -90,7 +83,7 @@ router.delete("/coursesOffered/:id", Auth, async (req, res) => {
 });
 
 //get all courses
-router.get("/coursesOffered", async (req, res) => {
+router.get("/courses", async (req, res) => {
   try {
     const items = await CourseOffered.find({});
     res.status(200).send(items);

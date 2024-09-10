@@ -4,6 +4,7 @@ const express = require("express");
 const router = express.Router();
 const nodemailer = require("nodemailer");
 const Badge = require("../models/Badge");
+const Dashboard = require("../models/Dashboard");
 const Auth = require("../middleware/auth");
 
 // Create an instance of the badge class
@@ -89,20 +90,29 @@ router.post("/users/signup", async (req, res) => {
 router.get("/users/verify-email", async (req, res) => {
   try {
     const { token } = req.query;
+
     // Verify the token
     const decoded = jwt.verify(token, process.env.JWT_SECRET || "RANDOM-TOKEN");
+
     // Find the user by ID (from the decoded token)
     const user = await User.findOne({ _id: decoded._id });
     if (!user) {
       return res.status(400).json({ message: "User not found" });
     }
+
     // Check if the user is already verified
     if (user.isVerified) {
       return res.status(400).json({ message: "User is already verified." });
     }
+
     // Update the user's isVerified field
     user.isVerified = true;
     await user.save();
+
+    // Create a dashboard for the user
+    const dashboard = new Dashboard({ owner: decoded._id });
+    await dashboard.save();
+
     res.status(200).json({ message: "Email verified successfully!" });
   } catch (err) {
     console.log("Error verifying email:", err);
