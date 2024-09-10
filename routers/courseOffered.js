@@ -3,7 +3,7 @@ const CourseOffered = require("../models/CourseOffered");
 const coursesOfferedData = require("../config/coursesOffered.json");
 const Auth = require("../middleware/auth");
 const router = new express.Router();
-
+const { v4: uuidv4 } = require("uuid");
 //adding courses offered to the database
 router.post("/courses/seeds", async (req, res, next) => {
   const courses = coursesOfferedData.coursesOffered; // Single course data
@@ -95,10 +95,28 @@ router.get("/courses", async (req, res) => {
 //get all course category
 router.get("/courses/categories", async (req, res) => {
   try {
-    const uniqueCategories = await CourseOffered.distinct("category");
-    res.status(200).send(uniqueCategories);
+    // Aggregate the data by category and count the number of courses in each category
+    const categoriesWithCounts = await CourseOffered.aggregate([
+      {
+        $group: {
+          _id: "$category",
+          numberOfCourses: { $sum: 1 },
+        },
+      },
+    ]);
+
+    // Map the result and add a custom UUID as ID
+    const response = categoriesWithCounts.map((category) => ({
+      id: uuidv4(),
+      name: category._id,
+      numberOfCourses: category.numberOfCourses,
+    }));
+
+    res.status(200).send(response);
   } catch (error) {
-    res.status(400).send(error);
+    res.status(400).send({
+      error: "An error occurred while fetching the categories with count.",
+    });
   }
 });
 //get course by category
