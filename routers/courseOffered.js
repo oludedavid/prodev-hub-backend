@@ -93,7 +93,7 @@ router.get("/courses", async (req, res) => {
 });
 
 //get all course category
-router.get("/courses/category", async (req, res) => {
+router.get("/courses/categories", async (req, res) => {
   try {
     const uniqueCategories = await CourseOffered.distinct("category");
     res.status(200).send(uniqueCategories);
@@ -102,7 +102,7 @@ router.get("/courses/category", async (req, res) => {
   }
 });
 //get course by category
-router.get("/courses/category/:category", async (req, res) => {
+router.get("/courses/categories/:category", async (req, res) => {
   try {
     const items = await CourseOffered.find({ category: req.params.category });
 
@@ -146,7 +146,7 @@ router.get("/courses/:category/:name", async (req, res) => {
   try {
     const items = await CourseOffered.find({
       category: req.params.category,
-      name: { $regex: new RegExp(req.params.name, "i") }, // Case-insensitive matching
+      name: { $regex: new RegExp(req.params.name, "i") },
     });
 
     if (items.length === 0) {
