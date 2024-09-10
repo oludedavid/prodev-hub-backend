@@ -4,6 +4,7 @@ const coursesOfferedData = require("../config/coursesOffered.json");
 const Auth = require("../middleware/auth");
 const router = new express.Router();
 const { v4: uuidv4 } = require("uuid");
+
 //adding courses offered to the database
 router.post("/courses/seeds", async (req, res, next) => {
   const courses = coursesOfferedData.coursesOffered; // Single course data
@@ -21,24 +22,17 @@ router.post("/courses/seeds", async (req, res, next) => {
   }
 });
 
-//creating an offered course mainly in admin dashboard
-router.post("/courses/seeds", async (req, res, next) => {
-  const courses = coursesOfferedData.coursesOffered;
+//get all courses
+router.get("/courses", async (req, res) => {
   try {
-    // Clear the CourseOffered collection before seeding
-    await CourseOffered.deleteMany({});
-
-    // Use insertMany to seed courses in a single batch operation
-    await CourseOffered.insertOne(courses[0]);
-
-    res.send("Courses seeded successfully");
-  } catch (err) {
-    console.error("Error seeding courses:", err);
-    next(err);
+    const items = await CourseOffered.find({});
+    res.status(200).send(items);
+  } catch (error) {
+    res.status(400).send(error);
   }
 });
 
-//updating a course that is offered
+//get course by id
 router.patch("/courses/:id", Auth, async (req, res) => {
   // Check if the user has the role of 'admin'
   if (req.user.badge !== "admin") {
@@ -65,6 +59,7 @@ router.patch("/courses/:id", Auth, async (req, res) => {
   }
 });
 
+//delete course by id
 router.delete("/courses/:id", Auth, async (req, res) => {
   try {
     // Check if the user has the role of 'admin'
@@ -82,13 +77,37 @@ router.delete("/courses/:id", Auth, async (req, res) => {
   }
 });
 
-//get all courses
-router.get("/courses", async (req, res) => {
+//get course by id
+router.get("/courses/:id", async (req, res) => {
   try {
-    const items = await CourseOffered.find({});
+    const item = await CourseOffered.findById(req.params.id);
+    res.status(200).send(item);
+  } catch (error) {
+    res.status(400).send({
+      message: "An error occurred while fetching the course by ID.",
+      error: error,
+    });
+  }
+});
+
+//get course by name
+router.get("/courses/course-by-name/:name", async (req, res) => {
+  try {
+    const items = await CourseOffered.find({
+      name: { $regex: new RegExp(req.params.name, "i") },
+    });
+
+    if (items.length === 0) {
+      return res
+        .status(404)
+        .send({ message: "No courses found with the specified name." });
+    }
+
     res.status(200).send(items);
   } catch (error) {
-    res.status(400).send(error);
+    res
+      .status(400)
+      .send({ error: "An error occurred while fetching the courses." });
   }
 });
 
@@ -128,27 +147,6 @@ router.get("/courses/categories/:category", async (req, res) => {
       return res
         .status(404)
         .send({ message: "No courses found in this category." });
-    }
-
-    res.status(200).send(items);
-  } catch (error) {
-    res
-      .status(400)
-      .send({ error: "An error occurred while fetching the courses." });
-  }
-});
-
-//get course by name
-router.get("/courses/:name", async (req, res) => {
-  try {
-    const items = await CourseOffered.find({
-      name: { $regex: new RegExp(req.params.name, "i") },
-    });
-
-    if (items.length === 0) {
-      return res
-        .status(404)
-        .send({ message: "No courses found with the specified name." });
     }
 
     res.status(200).send(items);
