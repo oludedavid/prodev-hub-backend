@@ -4,6 +4,7 @@ const express = require("express");
 const router = express.Router();
 const nodemailer = require("nodemailer");
 const Badge = require("../models/Badge");
+const Cart = require("../models/Cart");
 const Dashboard = require("../models/Dashboard");
 const Auth = require("../middleware/auth");
 

@@ -18,59 +18,60 @@ router.get("/cart", Auth, async (req, res) => {
     res.status(500).send();
   }
 });
-
-//Creare Cart
-router.post("/cart", Auth, async (req, res, next) => {
-  const owner = req.user._id;
-  const { courseOfferedId, quantity } = req.body;
-
+//function update cart bill
+const updateCartBill = (cart) => {
+  const totalBill = cart.courses.reduce((total, course) => {
+    return total + course.price * course.quantity;
+  }, 0);
+  cart.bill = totalBill;
+  return cart;
+};
+//Create Cart
+router.post("/cart", Auth, async (req, res) => {
   try {
-    const cart = await Cart.findOne({ owner });
-    const course = await CourseOffered.findOne({ _id: courseOfferedId });
-    //if course does not exist
-    if (!course) {
-      res.status(404).send({ message: "course not found" });
-      return;
-    }
-    const price = course.price;
-    const name = course.name;
+    const { courseOfferedId, quantity } = req.body;
+    const userId = req.user._id;
 
-    //if cart already exists
-    if (cart) {
-      const courseIndex = cart.courses.findIndex(
-        (course) => course.courseOfferedId == courseOfferedId
-      );
-      //check if the course exist or not
-      if (courseIndex) {
-        let course = cart.courses[courseIndex];
-        course.quantity = course.quantity + quantity;
-        cart.bill = cart.courses.reduce((acc, course) => {
-          return acc + course.price * course.quantity;
-        }, 0);
-        cart.courses[courseIndex] = course;
-        await cart.save();
-        res.status(200).send(cart);
-      } else {
-        cart.courses.push({ courseOfferedId, name, quantity, price });
-        cart.bill = cart.courses.reduce((acc, curr) => {
-          return acc + curr.quantity * curr.price;
-        }, 0);
-        await cart.save();
-        res.status(200).send(cart);
-      }
-    } else {
-      const newCart = await Cart.create({
-        owner,
-        courses: [{ courseOfferedId, name, quantity, price }],
-        bill: quantity * price,
-      });
-      return res.status(201).send(newCart);
+    // Find the cart for the user
+    let cart = await Cart.findOne({ owner: userId });
+
+    if (!cart) {
+      cart = new Cart({ owner: userId, courses: [] });
     }
+
+    // Find the course being added
+    const course = await CourseOffered.findById(courseOfferedId);
+
+    // Check if the course is already in the cart
+    const courseInCart = cart.courses.find(
+      (c) => c.courseOfferedId.toString() === courseOfferedId
+    );
+
+    if (courseInCart) {
+      // Update the quantity if the course is already in the cart
+      courseInCart.quantity += quantity;
+    } else {
+      // Add the course to the cart if it's not already there
+      cart.courses.push({
+        courseOfferedId,
+        name: course.name,
+        quantity,
+        price: course.price,
+      });
+    }
+
+    // Update the total bill
+    updateCartBill(cart);
+
+    // Save the cart
+    await cart.save();
+
+    res.status(200).json({ message: "Course added to cart", cart });
   } catch (error) {
-    console.log(error);
-    res.status(500).send("something went wrong" + error);
+    res.status(500).json({ message: "Error adding course to cart", error });
   }
 });
+
 // Update a cart item (e.g., update quantity)
 router.patch("/cart", Auth, async (req, res) => {
   const owner = req.user._id;

@@ -17,6 +17,11 @@ const courseOfferedSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
+  quantity: {
+    type: Number,
+    required: true,
+    default: 1,
+  },
   imageUrl: {
     type: String,
     required: true,
