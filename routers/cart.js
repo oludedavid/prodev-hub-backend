@@ -112,7 +112,7 @@ router.patch("/cart", Auth, async (req, res) => {
   }
 });
 
-router.delete("/cart", Auth, async (req, res) => {
+router.delete("/cart", async (req, res) => {
   const owner = req.user._id;
   const courseOfferedId = req.query.courseOfferedId;
   try {
